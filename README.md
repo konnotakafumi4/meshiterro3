@@ -7,3 +7,16 @@ get 'homes/about' => 'homes#about', as: 'about'
 ##### 親のresourcesで指定したコントローラ名に、子のresourcesで指定したコントローラ名が続くURLが生成されるのが確認できます。
 このような親子関係を、「ネストする」と言います。
 上記のようなネストしたURLを作成することでparams[:post_image_id]でPostImageのidが取得できるようになります。
+
+#### favorited_by?メソッドを作成します。 このメソッドで、引数で渡されたユーザidがFavoritesテーブル内に存在（exists?）するかどうかを調べます。 存在していればtrue、存在していなければfalseを返すようにしています。
+-------------------------------------
+def favorited_by?(user)
+  favorites.exists?(user_id: user.id)
+end
+-------------------------------------
+
+#### resources
+#### resource
+#### 単数形にすると、/:idがURLに含まれなくなります。
+
+#### コメント機能では「1人のユーザが１つの投稿に対して何度でもコメントできる」という仕様だったため、destroyをする際にidを受け渡して「どのコメントを削除するのか」を指定する必要がありました。 destroyアクションの場合、URLは'/post_images/:post_image_id/post_comments/:id'のようになっており、URLの最後に/:idが含まれます。コントローラで「params[:id]」と記述することで、このURLに含まれる:idを取得できるのでした。しかし、いいね機能の場合は「1人のユーザーは1つの投稿に対して1回しかいいねできない」という仕様であるため、destroyをする際にもユーザーidと投稿(post_image)idが分かれば、どのいいねを削除すればいいのかが特定できます。 そのため、いいねのidはURLに含める必要がない(params[:id]を使わなくても良い)ため、resourcesではなくresourceを使ってURLに/:idを含めない形にしています。このように、resourceは「それ自身のidが分からなくても、関連する他のモデルのidから特定できる」といった場合に用いることが多いです。
